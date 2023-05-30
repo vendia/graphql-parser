@@ -12,6 +12,10 @@ fn roundtrip_multiline_args(filename: &str) {
     roundtrip(filename, Style::default().multiline_arguments(true))
 }
 
+fn roundtrip2_no_block_strings(filename: &str) {
+    roundtrip2(filename, Style::default().block_strings(false))
+}
+
 fn roundtrip_default(filename: &str) {
     roundtrip(filename, &Style::default())
 }
@@ -25,7 +29,11 @@ fn roundtrip(filename: &str, style: &Style) {
     assert_eq!(ast.format(style), buf);
 }
 
-fn roundtrip2(filename: &str) {
+fn roundtrip2_default(filename: &str) {
+    roundtrip2(filename, &Style::default())
+}
+
+fn roundtrip2(filename: &str, style: &Style) {
     let mut buf = String::with_capacity(1024);
     let source = format!("tests/queries/{}.graphql", filename);
     let target = format!("tests/queries/{}_canonical.graphql", filename);
@@ -36,7 +44,7 @@ fn roundtrip2(filename: &str) {
     let mut buf = String::with_capacity(1024);
     let mut f = File::open(&target).unwrap();
     f.read_to_string(&mut buf).unwrap();
-    assert_eq!(ast.to_string(), buf);
+    assert_eq!(ast.format(style), buf);
 }
 
 #[test]
@@ -61,7 +69,7 @@ fn query_nameless_vars() {
 }
 #[test]
 fn query_nameless_vars_multiple_fields() {
-    roundtrip2("query_nameless_vars_multiple_fields");
+    roundtrip2_default("query_nameless_vars_multiple_fields");
 }
 #[test]
 fn query_var_defaults() {
@@ -94,6 +102,10 @@ fn query_arguments() {
 #[test]
 fn query_arguments_multiline() {
     roundtrip_multiline_args("query_arguments_multiline");
+}
+#[test]
+fn triple_quoted_literal_no_block_strings() {
+    roundtrip2_no_block_strings("no_block_strings/triple_quoted_literal");
 }
 #[test]
 fn query_directive() {
@@ -169,5 +181,5 @@ fn directive_args_multiline() {
 }
 #[test]
 fn kitchen_sink() {
-    roundtrip2("kitchen-sink");
+    roundtrip2_default("kitchen-sink");
 }
